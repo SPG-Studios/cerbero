@@ -421,8 +421,8 @@ class Config(object):
 
         # Ensure that variants continue to override all other configuration
         self.variants.override(variants_override)
-        if not self.prefix_is_executable() and self.variants.gi:
-            m.warning(_('gobject introspection requires an executable ' "prefix, 'gi' variant will be removed"))
+        if self.variants.gi and not self.gi_supported():
+            m.warning(_("gobject introspection requires an executable target, 'gi' variant will be removed"))
             self.variants.gi = False
 
         for c in list(self.arch_config.values()):
