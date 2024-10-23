@@ -1,0 +1,145 @@
+From 1db8b36f2a8ff96279a4a74aa4fc03d8abb08c19 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Piotr=20Brzezi=C5=84ski?= <piotr@centricular.com>
+Date: Mon, 1 Jul 2024 18:55:13 +0200
+Subject: [PATCH 1/2] swift: Fix duplicate SDK include paths causing a compile
+ error
+
+Some dependencies can bring include paths pointing to older macOS SDK's.
+In this case, it was libffi pointing to SDK from 12.0. When the Foundation
+framework is imported in Swift, swiftc attempts to import the FFI module
+from the most recent version of the SDK, which causes a compilation error
+because of conflicting definitions between the two SDK versions.
+
+SwiftPM also had this problem:
+https://github.com/swiftlang/swift-package-manager/pull/6772
+
+The solution on our side is a simplified version of what SwiftPM did.
+Let's naively look for .sdk paths in the compile args of our dependencies
+and replace them with the most recent one.
+
+I included a test which is confirmed to fail without the workaround
+added in this patch. This was not tested on anything else than macOS,
+but I don't expect it to make the situation worse in any case.
+---
+ mesonbuild/compilers/swift.py                 | 21 +++++++++++++++++++
+ .../swift/9 sdk path from dep/foo.swift       |  4 ++++
+ .../swift/9 sdk path from dep/meson.build     | 12 +++++++++++
+ 3 files changed, 37 insertions(+)
+ create mode 100644 test cases/swift/9 sdk path from dep/foo.swift
+ create mode 100644 test cases/swift/9 sdk path from dep/meson.build
+
+diff --git a/mesonbuild/compilers/swift.py b/mesonbuild/compilers/swift.py
+index a2525f927f28..93e37cecb932 100644
+--- a/mesonbuild/compilers/swift.py
++++ b/mesonbuild/compilers/swift.py
+@@ -11,6 +11,7 @@
+ from .compilers import Compiler, clike_debug_args
+ 
+ if T.TYPE_CHECKING:
++    from ..dependencies import Dependency
+     from ..envconfig import MachineInfo
+     from ..environment import Environment
+     from ..linkers.linkers import DynamicLinker
+@@ -39,6 +40,10 @@ def __init__(self, exelist: T.List[str], version: str, for_machine: MachineChoic
+                          is_cross=is_cross, full_version=full_version,
+                          linker=linker)
+         self.version = version
++        if self.info.is_darwin():
++            self.sdk_path = subprocess.check_output(['xcrun', '--show-sdk-path'],
++                                                    universal_newlines=True,
++                                                    encoding='utf-8').strip()
+ 
+     def get_pic_args(self) -> T.List[str]:
+         return []
+@@ -55,6 +60,22 @@ def get_werror_args(self) -> T.List[str]:
+     def get_dependency_gen_args(self, outtarget: str, outfile: str) -> T.List[str]:
+         return ['-emit-dependencies']
+ 
++    def get_dependency_compile_args(self, dep: Dependency) -> T.List[str]:
++        args = dep.get_compile_args()
++        # Some deps might sneak in a hardcoded path to an older macOS SDK, which can
++        # cause compilation errors. Let's replace all .sdk paths with the current one.
++        # SwiftPM does it this way: https://github.com/swiftlang/swift-package-manager/pull/6772
++        # Not tested on anything else than macOS for now.
++        if not self.info.is_darwin():
++            return args
++        suffix = '.sdk'
++        for idx, arg in enumerate(args):
++            if suffix not in arg:
++                continue
++            sdk_end = arg.index(suffix) + len(suffix)
++            args[idx] = arg[:2] + self.sdk_path + arg[sdk_end:]
++        return args
++
+     def depfile_for_object(self, objfile: str) -> T.Optional[str]:
+         return os.path.splitext(objfile)[0] + '.' + self.get_depfile_suffix()
+ 
+diff --git a/test cases/swift/9 sdk path from dep/foo.swift b/test cases/swift/9 sdk path from dep/foo.swift
+new file mode 100644
+index 000000000000..6ca38879f363
+--- /dev/null
++++ b/test cases/swift/9 sdk path from dep/foo.swift	
+@@ -0,0 +1,4 @@
++// This import is needed for swiftc to implictly import the FFI module
++// which will in turn conflict with the dependency's include path and error out
++// if we don't manually replace all SDK paths with the newest one.
++import Foundation
+diff --git a/test cases/swift/9 sdk path from dep/meson.build b/test cases/swift/9 sdk path from dep/meson.build
+new file mode 100644
+index 000000000000..4cc44bc725a7
+--- /dev/null
++++ b/test cases/swift/9 sdk path from dep/meson.build	
+@@ -0,0 +1,12 @@
++project('swift sdk include dir test', 'swift')
++
++bar_dep = declare_dependency(
++  # Simulates including 'libffi' from brew as a dep via pkg-config
++  # Without a workaround that replaces all SDK paths with the most recent one,
++  # a compile error will occur due to conflicting definitions of the FFI module.
++  compile_args: '-I/Library/Developer/CommandLineTools/SDKs/MacOSX12.sdk/usr/include/ffi',
++)
++
++foo = static_library('foo', 'foo.swift',
++  dependencies: [bar_dep],
++)
+
+From 9b3eacbbc45c43d7fe6edcb2e2d3ec7e519973bc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Piotr=20Brzezi=C5=84ski?= <piotr@centricular.com>
+Date: Mon, 1 Jul 2024 20:23:12 +0200
+Subject: [PATCH 2/2] Use regex instead of manual finding, only change -I args
+
+---
+ mesonbuild/compilers/swift.py | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/mesonbuild/compilers/swift.py b/mesonbuild/compilers/swift.py
+index 93e37cecb932..229a666fa7d2 100644
+--- a/mesonbuild/compilers/swift.py
++++ b/mesonbuild/compilers/swift.py
+@@ -3,6 +3,7 @@
+ 
+ from __future__ import annotations
+ 
++import re
+ import subprocess, os.path
+ import typing as T
+ 
+@@ -68,12 +69,12 @@ def get_dependency_compile_args(self, dep: Dependency) -> T.List[str]:
+         # Not tested on anything else than macOS for now.
+         if not self.info.is_darwin():
+             return args
+-        suffix = '.sdk'
+-        for idx, arg in enumerate(args):
+-            if suffix not in arg:
+-                continue
+-            sdk_end = arg.index(suffix) + len(suffix)
+-            args[idx] = arg[:2] + self.sdk_path + arg[sdk_end:]
++        pattern = re.compile(r'.*\/MacOSX[^\/]*\.sdk(\/.*|$)')
++        for i, arg in enumerate(args):
++            if arg.startswith('-I'):
++                match = pattern.match(arg)
++                if match:
++                    args[i] = '-I' + self.sdk_path + match.group(1)
+         return args
+ 
+     def depfile_for_object(self, objfile: str) -> T.Optional[str]:
