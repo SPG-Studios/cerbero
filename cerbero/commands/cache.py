@@ -87,7 +87,7 @@ class BaseCache(Command):
         target_arch = config.target_arch
         if distro == Distro.REDHAT:
             distro = 'fedora'
-        if distro == Distro.OS_X:
+        if distro == Distro.MACOS:
             distro = 'macos'
         if distro == Distro.WINDOWS:
             # When targeting Windows, we need to differentiate between mingw,

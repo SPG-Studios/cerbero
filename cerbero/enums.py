@@ -67,7 +67,7 @@ class Distro:
     MSYS = 'msys'  # When running on a native Windows with MSYS
     MSYS2 = 'msys2'  # When running on a native Windows with MSYS2
     ARCH = 'arch'
-    OS_X = 'osx'
+    MACOS = 'macos'
     IOS = 'ios'
     ANDROID = 'android'
     GENTOO = 'gentoo'
@@ -141,16 +141,11 @@ class DistroVersion:
     WINDOWS_8_1 = 'windows_08_1'
     WINDOWS_10 = 'windows_10'
     WINDOWS_11 = 'windows_11'
-    OS_X_MAVERICKS = 'osx_mavericks'
-    OS_X_MOUNTAIN_LION = 'osx_mountain_lion'
-    OS_X_YOSEMITE = 'osx_yosemite'
-    OS_X_EL_CAPITAN = 'osx_el_capitan'
-    OS_X_SIERRA = 'osx_sierra'
-    OS_X_HIGH_SIERRA = 'osx_high_sierra'
-    OS_X_MOJAVE = 'osx_mojave'
-    OS_X_CATALINA = 'osx_catalina'
-    OS_X_BIG_SUR = 'osx_big_sur'
-    # further osx versions are generated automatically
+    MACOS_SIERRA = 'macos_10.12'
+    MACOS_HIGH_SIERRA = 'macos_10.13'
+    MACOS_MOJAVE = 'macos_10.14'
+    MACOS_CATALINA = 'macos_10.15'
+    # further macos versions are generated automatically
     IOS_8_0 = 'ios_08_0'
     IOS_8_1 = 'ios_08_1'
     IOS_8_2 = 'ios_08_2'

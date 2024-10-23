@@ -25,7 +25,7 @@ from cerbero.utils import messages as m
 from cerbero.enums import Architecture
 
 
-class OSXBootstrapper(BootstrapperBase):
+class MacOSBootstrapper(BootstrapperBase):
     def __init__(self, config, offline, assume_yes):
         super().__init__(config, offline)
 
@@ -39,4 +39,4 @@ class OSXBootstrapper(BootstrapperBase):
 
 
 def register_all():
-    register_system_bootstrapper(Distro.OS_X, OSXBootstrapper)
+    register_system_bootstrapper(Distro.MACOS, MacOSBootstrapper)
