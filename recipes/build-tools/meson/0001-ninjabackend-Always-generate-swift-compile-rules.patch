@@ -1,0 +1,28 @@
+From dcf1b91adc71039504c03b29e303584e8e7b70c7 Mon Sep 17 00:00:00 2001
+From: Nirbheek Chauhan <nirbheek@centricular.com>
+Date: Wed, 23 Oct 2024 16:41:23 +0530
+Subject: [PATCH] ninjabackend: Always generate swift compile rules
+
+You can absolutely cross-compile with swift, you just need to pass
+-target
+---
+ mesonbuild/backend/ninjabackend.py | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/mesonbuild/backend/ninjabackend.py b/mesonbuild/backend/ninjabackend.py
+index ee86c27e0..cc333aec8 100644
+--- a/mesonbuild/backend/ninjabackend.py
++++ b/mesonbuild/backend/ninjabackend.py
+@@ -2494,8 +2494,7 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47485'''))
+             self.generate_rust_compile_rules(compiler)
+             return
+         if langname == 'swift':
+-            if self.environment.machines.matches_build_machine(compiler.for_machine):
+-                self.generate_swift_compile_rules(compiler)
++            self.generate_swift_compile_rules(compiler)
+             return
+         if langname == 'cython':
+             self.generate_cython_compile_rules(compiler)
+-- 
+2.45.2
+
