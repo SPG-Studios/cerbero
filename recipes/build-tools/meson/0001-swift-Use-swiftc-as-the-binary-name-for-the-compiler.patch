@@ -1,0 +1,44 @@
+From c216bc94ab5f0e56176ee742cc97f0c18de52026 Mon Sep 17 00:00:00 2001
+From: Nirbheek Chauhan <nirbheek@centricular.com>
+Date: Thu, 24 Oct 2024 00:30:27 +0530
+Subject: [PATCH] swift: Use 'swiftc' as the binary name for the compiler
+
+"swift" is a separate thing: the Swift Package Manager. Specifying it
+in machine files breaks invocation of SwiftPM itself.
+
+The compiler is "swiftc".
+---
+ mesonbuild/compilers/detect.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/mesonbuild/compilers/detect.py b/mesonbuild/compilers/detect.py
+index 7542fb628..538e04159 100644
+--- a/mesonbuild/compilers/detect.py
++++ b/mesonbuild/compilers/detect.py
+@@ -68,7 +68,7 @@ defaults['d'] = ['ldc2', 'ldc', 'gdc', 'dmd']
+ defaults['java'] = ['javac']
+ defaults['cuda'] = ['nvcc']
+ defaults['rust'] = ['rustc']
+-defaults['swift'] = ['swiftc']
++defaults['swiftc'] = ['swiftc']
+ defaults['vala'] = ['valac']
+ defaults['cython'] = ['cython', 'cython3'] # Official name is cython, but Debian renamed it to cython3.
+ defaults['static_linker'] = ['ar', 'gar']
+@@ -1237,12 +1237,12 @@ def detect_d_compiler(env: 'Environment', for_machine: MachineChoice) -> Compile
+ 
+ def detect_swift_compiler(env: 'Environment', for_machine: MachineChoice) -> Compiler:
+     from .swift import SwiftCompiler
+-    exelist = env.lookup_binary_entry(for_machine, 'swift')
++    exelist = env.lookup_binary_entry(for_machine, 'swiftc')
+     is_cross = env.is_cross_build(for_machine)
+     info = env.machines[for_machine]
+     if exelist is None:
+         # TODO support fallback
+-        exelist = [defaults['swift'][0]]
++        exelist = [defaults['swiftc'][0]]
+ 
+     try:
+         p, _, err = Popen_safe_logged(exelist + ['-v'], msg='Detecting compiler via')
+-- 
+2.45.2
+
