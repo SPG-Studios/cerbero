@@ -724,6 +724,7 @@ system = '{system}'
 cpu_family = '{cpu_family}'
 cpu = '{cpu}'
 endian = '{endian}'
+{subsystem}
 
 [constants]
 toolchain = '{toolchain}'
@@ -736,6 +737,7 @@ c = {CC}
 cpp = {CXX}
 objc = {OBJC}
 objcpp = {OBJCXX}
+swiftc = {SWIFTC}
 ar = {AR}
 pkgconfig = {PKG_CONFIG}
 {extra_binaries}
@@ -973,10 +975,18 @@ class Meson (Build, ModifyEnvBase) :
         for k, v in binaries.items():
             extra_binaries += '{} = {}\n'.format(k, str(v))
 
+        swiftc = "'false'"
+        subsystem = ''
+        # FIXME: ios
+        if self.config.target_platform == Platform.DARWIN:
+            swiftc = ['swiftc', '-target', f'{self.config.target_arch}-apple-macos10.13']
+            subsystem = f"subsystem = '{self.config.target_distro}'"
+
         contents = MESON_FILE_TPL.format(
                 system=self.config.target_platform,
                 cpu=self.config.target_arch,
                 cpu_family=self._get_target_cpu_family(),
+                subsystem=subsystem,
                 # Assume all supported target archs are little endian
                 endian='little',
                 toolchain='',
@@ -984,6 +994,7 @@ class Meson (Build, ModifyEnvBase) :
                 CXX=cxx,
                 OBJC=objc,
                 OBJCXX=objcxx,
+                SWIFTC=swiftc,
                 AR=ar,
                 PKG_CONFIG="'pkg-config'",
                 extra_binaries=extra_binaries,
@@ -1025,16 +1036,25 @@ class Meson (Build, ModifyEnvBase) :
             objcxx = false
         # We do not use cmake dependency files, speed up the build by disabling it
         extra_binaries = 'cmake = {}'.format(str(false))
+
+        swiftc = "'false'"
+        subsystem = ''
+        if self.config.platform == Platform.DARWIN:
+            swiftc = ['swiftc', '-target', f'{self.config.arch}-apple-macos10.13']
+            subsystem = f"subsystem = 'macos'"
+
         contents = MESON_FILE_TPL.format(
                 system=self.config.platform,
                 cpu=self.config.arch,
                 cpu_family=self.config.arch,
+                subsystem=subsystem,
                 endian='little',
                 toolchain=self.get_env('ANDROID_NDK_TOOLCHAIN_BIN', ''),
                 CC=cc,
                 CXX=cxx,
                 OBJC=objc,
                 OBJCXX=objcxx,
+                SWIFTC=swiftc,
                 AR=ar,
                 PKG_CONFIG=false,
                 extra_binaries=extra_binaries,
@@ -1055,12 +1075,14 @@ class Meson (Build, ModifyEnvBase) :
                 system=self.config.platform,
                 cpu=self.config.arch,
                 cpu_family=self.config.arch,
+                subsystem='',
                 endian='little',
                 toolchain='',
                 CC=false,
                 CXX=false,
                 OBJC=false,
                 OBJCXX=false,
+                SWIFTC=false,
                 AR=false,
                 PKG_CONFIG=false,
                 extra_binaries=extra_binaries,
