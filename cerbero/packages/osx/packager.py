@@ -653,5 +653,5 @@ def register():
     from cerbero.packages.packager import register_packager
     from cerbero.config import Distro
 
-    register_packager(Distro.OS_X, Packager)
+    register_packager(Distro.MACOS, Packager)
     register_packager(Distro.IOS, Packager)

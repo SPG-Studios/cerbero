@@ -50,6 +50,11 @@ N_ = lambda x: x  # noqa: E731
 CYGPATH = shutil.which('cygpath')
 
 
+def version_lt(v1, v2):
+    to_tuple = lambda v: tuple(int(c) for c in v.split('.'))
+    return to_tuple(v1) < to_tuple(v2)
+
+
 class ArgparseArgument(object):
     def __init__(self, *name, **kwargs):
         self.name = name
@@ -438,28 +443,20 @@ Terminating.""",
         else:
             raise FatalError("Windows version '%s' not supported" % win32_ver)
     elif platform == Platform.DARWIN:
-        distro = Distro.OS_X
         ver = pplatform.mac_ver()[0]
-        if ver.startswith(('11.', '10.16')):
-            distro_version = DistroVersion.OS_X_BIG_SUR
-        elif ver.startswith('10.15'):
-            distro_version = DistroVersion.OS_X_CATALINA
-        elif ver.startswith('10.14'):
-            distro_version = DistroVersion.OS_X_MOJAVE
+        if version_lt(ver, '10.12'):
+            raise FatalError("Mac OS X El Capitan and older are not supported")
+        distro = Distro.MACOS
+        if ver.startswith('10.12'):
+            distro_version = DistroVersion.MACOS_SIERRA
         elif ver.startswith('10.13'):
-            distro_version = DistroVersion.OS_X_HIGH_SIERRA
-        elif ver.startswith('10.12'):
-            distro_version = DistroVersion.OS_X_SIERRA
-        elif ver.startswith('10.11'):
-            distro_version = DistroVersion.OS_X_EL_CAPITAN
-        elif ver.startswith('10.10'):
-            distro_version = DistroVersion.OS_X_YOSEMITE
-        elif ver.startswith('10.9'):
-            distro_version = DistroVersion.OS_X_MAVERICKS
-        elif ver.startswith('10.8'):
-            distro_version = DistroVersion.OS_X_MOUNTAIN_LION
+            distro_version = DistroVersion.MACOS_HIGH_SIERRA
+        elif ver.startswith('10.14'):
+            distro_version = DistroVersion.MACOS_MOJAVE
+        elif ver.startswith('10.15'):
+            distro_version = DistroVersion.MACOS_CATALINA
         else:
-            distro_version = 'osx_%s' % ver
+            distro_version = 'macos_%s' % ver
 
     num_of_cpus = determine_num_of_cpus()
 
