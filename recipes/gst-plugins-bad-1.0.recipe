@@ -479,12 +479,10 @@ class Recipe(custom.GStreamer):
              '%(libdir)s/gstreamer-1.0/libgstdecklink.a', '%(libdir)s/gstreamer-1.0/libgstdecklink.la',
             ],
         Platform.DARWIN: [
-             '%(libdir)s/gstreamer-1.0/libgstapplemedia.a', '%(libdir)s/gstreamer-1.0/libgstapplemedia.la',
              '%(libdir)s/gstreamer-1.0/libgstshm.a', '%(libdir)s/gstreamer-1.0/libgstshm.la',
              '%(libdir)s/gstreamer-1.0/libgstdecklink.a', '%(libdir)s/gstreamer-1.0/libgstdecklink.la',
             ],
         Platform.IOS: [
-             '%(libdir)s/gstreamer-1.0/libgstapplemedia.a', '%(libdir)s/gstreamer-1.0/libgstapplemedia.la',
              '%(libdir)s/gstreamer-1.0/libgstshm.a', '%(libdir)s/gstreamer-1.0/libgstshm.la',
             ],
         Platform.ANDROID: [
