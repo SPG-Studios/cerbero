@@ -104,6 +104,7 @@ class Variants(object):
         'werror',
         'vaapi',
         'rust',
+        'swift',
         'qt6',
     ]
     __enabled_variants = ['debug', 'optimization', 'testspackage']
