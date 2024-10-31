@@ -977,10 +977,11 @@ class Meson (Build, ModifyEnvBase) :
 
         swiftc = "'false'"
         subsystem = ''
-        # FIXME: ios
-        if self.config.target_platform == Platform.DARWIN:
-            swiftc = ['swiftc', '-target', f'{self.config.target_arch}-apple-macos10.13']
+        if self.config.target_platform in (Platform.DARWIN, Platform.IOS):
             subsystem = f"subsystem = '{self.config.target_distro}'"
+        # FIXME: ios
+        if self.config.platform == Platform.DARWIN and self.config.variants.swift:
+            swiftc = ['swiftc', '-target', f'{self.config.target_arch}-apple-macos{self.config.min_osx_sdk_version}']
 
         contents = MESON_FILE_TPL.format(
                 system=self.config.target_platform,
@@ -1040,8 +1041,9 @@ class Meson (Build, ModifyEnvBase) :
         swiftc = "'false'"
         subsystem = ''
         if self.config.platform == Platform.DARWIN:
-            swiftc = ['swiftc', '-target', f'{self.config.arch}-apple-macos10.13']
-            subsystem = f"subsystem = 'macos'"
+            subsystem = f"subsystem = '{self.config.distro}'"
+        if self.config.platform == Platform.DARWIN and self.config.variants.swift:
+            swiftc = ['swiftc', '-target', f'{self.config.arch}-apple-macos{self.config.min_osx_sdk_version}']
 
         contents = MESON_FILE_TPL.format(
                 system=self.config.platform,
