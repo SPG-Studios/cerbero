@@ -1102,6 +1102,12 @@ class Config(object):
     def get_python_ext_suffix(self):
         return sysconfig.get_config_vars().get('EXT_SUFFIX', '%(pext)s')
 
+    def get_python_framework(self):
+        '''
+        Get framework prefix for RPATH
+        '''
+        return sysconfig.get_config_vars().get('PYTHONFRAMEWORKPREFIX', None)
+
     def get_python_version(self):
         return self.extra_properties.get('python_version', sysconfig.get_python_version())
 
