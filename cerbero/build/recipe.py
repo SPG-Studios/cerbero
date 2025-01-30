@@ -494,7 +494,7 @@ SOFTWARE LICENSE COMPLIANCE.\n\n'''
             PkgConfig.add_search_dir(self.config.qt5_pkgconfigdir, env, self.config)
 
         # retrieve the list of files we need to generate
-        for f in self.devel_files_list():
+        for f in self.devel_files_list(only_existing=False):
             libdir = self.config.rel_libdir + '/'
             if not f.endswith('.a') or not f.startswith(libdir):
                 continue
@@ -572,8 +572,7 @@ SOFTWARE LICENSE COMPLIANCE.\n\n'''
             return fp.split('/')[0] in ['lib', 'bin', 'libexec'] and \
                     os.path.splitext(fp)[1] not in ['.a', '.pc', '.la']
 
-        relocator = OSXRelocator(self.config.prefix, self.config.libdir, True,
-                logfile=self.logfile)
+        relocator = OSXRelocator(self.config.prefix, self.config.prefix, True, logfile=self.logfile)
         # Only relocate files are that are potentially relocatable and
         # remove duplicates by symbolic links so we relocate libs only
         # once.
