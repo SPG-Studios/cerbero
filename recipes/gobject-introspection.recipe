@@ -73,10 +73,12 @@ class Recipe(recipe.Recipe):
     ]
 
     patches = [
-        # https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/448
-        f'{name}/0001-giscanner-Allow-passing-full-paths-to-libraries-with.patch',
-        f'{name}/0002-dumper-Fix-introspection-binaries-missing-rpaths-for.patch',
+        f'{name}/0001-Revert-build-Do-not-compile-uninstalled-GIR-into-typ.patch',
+        f'{name}/0002-Revert-build-Do-not-install-generated-GLib-GIR-files.patch',
         f'{name}/0001-giscanner-remove-dependency-on-distutils.msvccompile.patch',
+        # https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/503
+        f'{name}/0001-meson-Use-the-specified-python-if-it-s-custom.patch',
+        f'{name}/0002-dumper-Fix-introspection-binaries-missing-rpaths-for.patch'
     ]
 
     def prepare(self):

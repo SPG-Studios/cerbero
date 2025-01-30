@@ -484,8 +484,8 @@ class FilesProvider(object):
             return f
         for py_prefix in self.py_prefixes:
             pydir = os.path.basename(os.path.normpath(py_prefix))
-            pyversioname = re.sub(r"python|\.", '', pydir)
-            cpythonname = "cpython-" + pyversioname
+            pyversioname = re.sub(r'python|\.', '', pydir)
+            cpythonname = 'cpython-' + pyversioname
 
             splitedext = os.path.splitext(f)
             for ex in ['', 'm']:

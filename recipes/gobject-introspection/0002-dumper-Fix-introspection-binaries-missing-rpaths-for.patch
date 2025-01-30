@@ -1,8 +1,7 @@
-From b4d17a6a3cf4ef572818fddd52269c83fb03f63a Mon Sep 17 00:00:00 2001
-Message-ID: <b4d17a6a3cf4ef572818fddd52269c83fb03f63a.1715982305.git.amy@amyspark.me>
-From: "L. E. Segovia" <amy@amyspark.me>
+From 7e77e10a5f683958786efaa23b173f52ed489ad1 Mon Sep 17 00:00:00 2001
+From: "L. E. Segovia" <amy@centricular.com>
 Date: Fri, 17 May 2024 21:39:10 +0000
-Subject: [PATCH 2/2] dumper: Fix introspection binaries missing rpaths for
+Subject: [PATCH 5/5] dumper: Fix introspection binaries missing rpaths for
  relative dylibs
 
 Apple expects dylibs to have an ID of the form `@rpath/libyadda.dylib`.
@@ -17,12 +16,14 @@ sanitizes RPATHs, load commands, and dylib IDs at install time.
 
 The simplest and most obvious fix is to ensure that, for each library
 load path, the corresponding rpath entry is inserted.
+
+(cherry picked from commit 6ffb7c06a35c05661dce997af4dfd83e8b3e024d)
 ---
  giscanner/dumper.py | 6 ++++++
  1 file changed, 6 insertions(+)
 
 diff --git a/giscanner/dumper.py b/giscanner/dumper.py
-index 74a494b..cdb5400 100644
+index 74a494b8..cdb5400d 100644
 --- a/giscanner/dumper.py
 +++ b/giscanner/dumper.py
 @@ -252,6 +252,12 @@ class DumpCompiler(object):
@@ -39,5 +40,5 @@ index 74a494b..cdb5400 100644
              for ldflag in shlex.split(os.environ.get('LDFLAGS', '')):
                  args.append(ldflag)
 -- 
-2.44.0
+2.47.0.windows.2
 
