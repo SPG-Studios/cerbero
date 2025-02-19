@@ -3,15 +3,14 @@
 
 class Recipe(recipe.Recipe):
     name = 'libpng'
-    version = '1.6.37'
+    version = '1.6.47'
     stype = SourceType.TARBALL
     url = 'sf://'
-    tarball_checksum = '505e70834d35383537b6491e7ae8641f1a4bed1876dbfe361201fc80868d88ca'
+    tarball_checksum = 'b213cb381fbb1175327bd708a77aab708a05adde7b471bc267bd15ac99893631'
+    autoreconf = True
+
     licenses = [{License.LibPNG: ['LICENSE']}]
     deps = ['zlib']
-    patches = [name + '/0001-neon-fix-function-export-names-for-iOS-armv7.patch',
-               name + '/0002-Fix-build-in-native-Windows-do-to-incorrect-r-insert.patch',
-              ]
 
     files_libs = ['libpng16']
     files_devel = ['include/libpng16', 'bin/libpng16-config',
