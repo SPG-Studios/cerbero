@@ -1,3 +1,4 @@
 recipes_commits = {'gstreamer-1.0': 'spg/1.24-spg'}
 recipes_remotes = {'gstreamer-1.0': {'spg': 'https://github.com/SPG-Studios/gstreamer'}}
 variants.override(['qt6', 'swift'])
+use_ccache=True
