@@ -197,8 +197,11 @@ class ModifyEnvBase:
         if self.config.qt5_pkgconfigdir:
             self.append_env('PKG_CONFIG_LIBDIR', self.config.qt5_pkgconfigdir, sep=os.pathsep)
         if self.config.use_ccache and isinstance(self, CMake):
-            self.set_env('CMAKE_C_COMPILER_LAUNCHER', 'ccache')
-            self.set_env('CMAKE_CXX_COMPILER_LAUNCHER', 'ccache')
+            binary_path = shutil.which("ccache")
+            if binary_path:
+                self.set_env('CMAKE_C_COMPILER_LAUNCHER', binary_path)
+                self.set_env('CMAKE_CXX_COMPILER_LAUNCHER', binary_path)
+
         if self.config.target_platform != Platform.WINDOWS:
             return
 
