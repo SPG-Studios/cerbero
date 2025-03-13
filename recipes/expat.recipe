@@ -23,9 +23,3 @@ class Recipe(recipe.Recipe):
             self.library_type = LibraryType.STATIC
         else:
             self.library_type = LibraryType.SHARED
-
-    def post_install(self):
-        libtool_la = LibtoolLibrary('libexpat', None, None, None, self.config.libdir,
-                self.config.target_platform)
-        libtool_la.save()
-        super().post_install()
