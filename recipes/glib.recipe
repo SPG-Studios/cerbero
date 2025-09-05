@@ -23,10 +23,10 @@ GLIB_CONFIG_UNVERSAL='''\
 
 class Recipe(recipe.Recipe):
     name = 'glib'
-    version = '2.74.4'
+    version = '2.74.7'
     stype = SourceType.TARBALL
     url = 'gnome://'
-    tarball_checksum = '0e82da5ea129b4444227c7e4a9e598f7288d1994bf63f129c44b90cfd2432172'
+    tarball_checksum = '196ab86c27127a61b7a70c3ba6af7b97bdc01c07cd3b21abd5e778b955eccb1b'
     licenses = [License.LGPLv2Plus]
     btype = BuildType.MESON
     meson_options = {'libmount': 'disabled', 'dtrace': 'false', 'iconv': 'auto'}
@@ -45,8 +45,6 @@ class Recipe(recipe.Recipe):
         'glib/0001-gtypes.h-workaround-for-g_uint64_checked_mul-issue-w.patch',
         # TODO upstreaming
         'glib/0001-gio-fix-duplicate-g_trace_-symbols-in-static-libs-wi.patch',
-        # From post-2.74.4 glib upstream (remove when bumping version)
-        'glib/0001-gthread-posix-need-to-include-errno.h.patch',
         # Upstreamed since 2.75 (remove when bumping version)
         'glib/0001-giomodule-Automatically-detect-modules-on-macOS.patch',
         # futex_time64 is seccomp blocked in Android API level < 30
@@ -55,9 +53,6 @@ class Recipe(recipe.Recipe):
         f'{name}/0010-glib-gthread-posix-Fix-name-of-the-futex_time64-2-te.patch',
         f'{name}/0011-glib-gthread-posix-Use-the-config.h-macros-to-detect.patch',
         f'{name}/0012-glib-gthread-posix-Fix-missing-saved_errno-variable-.patch',
-        # https://gitlab.gnome.org/GNOME/glib/-/merge_requests/3237
-        # backported into 2.74.6
-        'glib/0001-Fix-safe_wspawnve-define.patch',
         # https://gitlab.gnome.org/GNOME/glib/-/merge_requests/3361
         # (import fs needed for the patches below)
         'glib/0020-meson-Add-glib_valgrind_suppressions-variable-to-gli.patch',
@@ -65,12 +60,9 @@ class Recipe(recipe.Recipe):
         'glib/0021-build-Change-configure_file-to-fs.copyfile-when-copy.patch',
         # Upstream commit a61888bceb2b4d23bdc82e579fa3c99c69a7a9fa, landed in 2.79.0
         'glib/0022-tests-Fix-dependency-of-test.gresource-on-test-gener.patch',
-        # Upstream commit 1fdbc0638580c384f122a7021f570398ad1adb7e, landed in 2.79.0
-        # (backported into 2.74.6)
-        'glib/0023-meson-Add-missing-dependencies-for-utility-files-for.patch',
-        # https://gitlab.gnome.org/GNOME/glib/-/merge_requests/4125
-        # From 2.81.1, backported into 2.74.6
-        'glib/0024-Merge-branch-pr-fix_some_windows_testsuite_failures-.patch',
+        # Upstreamed since 2.85
+        # https://gitlab.gnome.org/GNOME/glib/-/merge_requests/4566
+        'glib/0001-threadedresolver-Return-valid-addresses-when-only-ha.patch',
     ]
 
     files_libs = [
