@@ -1,0 +1,5 @@
+recipes_remotes = {'gstreamer-1.0': {
+    'spg': 'https://github.com/SPG-Studios/gstreamer.git',
+}}
+recipes_commits = {'gstreamer-1.0': 'spg/1.28-spg'}
+variants.override('qt6', True)
