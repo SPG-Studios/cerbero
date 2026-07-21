@@ -5,6 +5,7 @@ from collections import defaultdict
 from cerbero.build import recipe
 from cerbero.build.source import SourceType
 from cerbero.build.cookbook import CookBook
+from cerbero.utils import messages as m
 from cerbero.enums import CERBERO_VERSION, License, FatalError, Platform, Architecture
 
 
@@ -63,8 +64,8 @@ class GStreamer(recipe.Recipe):
             # Force using the commit/remotes from 'gstreamer-1.0' recipe, if set
             # in the config, on all gstreamer recipes because they share the same
             # git repository.
-            self.commit = self.config.recipe_commit('gstreamer-1.0') or self.commit
-            self.remotes.update(self.config.recipes_remotes.get('gstreamer-1.0', {}))
+            if self.name != 'gstreamer-1.0':
+                self.update_commit_using_name('gstreamer-1.0')
             # gst-integrations-testsuite medias folder is the only submodule in GStreamer repository,
             # disable the submodule to avoid to download more than 500MB of test medias.
             self.use_submodules = False

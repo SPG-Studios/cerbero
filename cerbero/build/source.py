@@ -517,6 +517,20 @@ class GitCache(Source):
     _fetch_locks = collections.defaultdict(asyncio.Lock)
     _fetch_done = set()
 
+    def update_commit_using_name(self, name):
+        commit = self.config.recipe_commit(name)
+        if commit:
+            self.commit = commit
+        remotes = self.config.recipes_remotes.get(name, {})
+        self.remotes.update(remotes)
+        if commit:
+            msg = f'Changing git commit for {self.name} to {commit!r}'
+            if remotes and '/' in commit:
+                remote_name = commit.split('/', maxsplit=1)[0]
+                if remote_name in remotes:
+                    msg += f' with remote {remotes[remote_name]}'
+            m.action(msg)
+
     def __init__(self):
         Source.__init__(self)
         self.remotes = {} if self.remotes is None else self.remotes.copy()
@@ -535,8 +549,7 @@ class GitCache(Source):
             self.remotes['origin'] = '%s/%s.git' % (self.config.git_root, self.name)
         self.repo_dir = os.path.join(self.config.local_sources, self.name)
         # For forced commits in the config
-        self.commit = self.config.recipe_commit(self.name) or self.commit
-        self.remotes.update(self.config.recipes_remotes.get(self.name, {}))
+        self.update_commit_using_name(self.name)
 
     async def fetch(self, checkout=True):
         # Could have multiple recipes using the same repo.
